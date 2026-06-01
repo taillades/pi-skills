@@ -1,6 +1,6 @@
 ---
 name: rebase-main-into-branch
-description: Safely update the current feature branch by rebasing it onto latest main. Fetch main, check for dirty worktree, run the rebase, handle conflicts by asking when unsure, validate, and ask before force-pushing.
+description: Safely update the current feature branch by rebasing it onto latest main. Fetch main, check for dirty worktree, surface questions/edge cases before proceeding, run the rebase, handle conflicts by asking when unsure, validate, and force-push with lease when done.
 argument-hint: "Optional base branch, default main."
 allowed-tools: ["git *", "./grind format*", "./grind lint*", "bazel test*"]
 ---
@@ -15,7 +15,8 @@ Use this skill when the user wants to update the current branch with latest `mai
 - Do not start a rebase with uncommitted changes unless the user explicitly approves stashing or committing them.
 - Prefer `git rebase origin/main` over merging main into the branch.
 - Ask before resolving non-trivial conflicts. Do not guess semantic conflict resolutions.
-- Do not force-push unless the user explicitly confirms after the rebase.
+- Force-push with lease after a successful rebase and validation; no extra confirmation is needed unless there are unresolved questions, validation failures, conflicts requiring judgment, or other edge cases.
+- Before starting risky steps, explicitly ask any clarifying questions and raise edge cases you notice (unexpected branch/base, large unrelated diff, dirty worktree, unusual upstream, ambiguous conflicts, validation tradeoffs).
 - Never use `git reset --hard`, `git rebase --abort`, or destructive cleanup without telling the user what will happen. Abort is okay when the user asks or conflict resolution is not possible.
 
 ## Workflow
@@ -28,6 +29,7 @@ Use this skill when the user wants to update the current branch with latest `mai
    ```
    - If on `main` or detached HEAD, stop and ask what branch should be rebased.
    - If dirty, summarize changes and ask whether to stash, commit, or stop.
+   - Ask questions before proceeding if the branch/upstream/base relationship is unclear or surprising.
 
 2. **Fetch latest base**
    ```bash
@@ -40,7 +42,7 @@ Use this skill when the user wants to update the current branch with latest `mai
    git log --oneline --decorate origin/main..HEAD
    git diff --stat origin/main...HEAD
    ```
-   - Confirm if the branch appears unexpectedly large or unrelated.
+   - Stop and ask if the branch appears unexpectedly large or unrelated.
 
 4. **Run the rebase**
    ```bash
@@ -59,23 +61,20 @@ Use this skill when the user wants to update the current branch with latest `mai
    - For this repo, use targeted Bazel tests with `--config=agent`; run `./grind format` if conflict resolutions touched formatted files.
    - If validation fails, report failures and ask how to proceed.
 
-6. **Ask before push**
+6. **Push**
    - Show final status:
      ```bash
      git status --porcelain=v2 -b --ignore-submodules=all
      git log --oneline --decorate -5
      ```
-   - Ask: `Should I force-push with lease?`
+   - If there are unresolved questions, validation failures, or edge cases, stop and ask how to proceed.
+   - Otherwise push safely:
+     ```bash
+     git push --force-with-lease
+     ```
+   - Report the resulting HEAD SHA and push result.
 
-## If the user says yes to push
-
-1. Push safely:
-   ```bash
-   git push --force-with-lease
-   ```
-2. Report the resulting HEAD SHA and push result.
-
-## Final response before push
+## Final response
 
 Include:
 - branch rebased
@@ -83,4 +82,4 @@ Include:
 - conflicts encountered and how resolved
 - validation run and results
 - current HEAD SHA
-- whether push is still pending
+- push result, or why push was skipped/pending
