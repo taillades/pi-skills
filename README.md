@@ -1,5 +1,40 @@
 # Pi Skills
 
+## Install pi
+
+Install the Pi coding agent CLI with npm:
+
+```bash
+npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+```
+
+Or use the installer:
+
+```bash
+curl -fsSL https://pi.dev/install.sh | sh
+```
+
+Start pi with an API key:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+pi
+```
+
+Or start pi and sign in with an existing subscription:
+
+```bash
+pi
+/login  # Then select provider
+```
+
+Install these skills locally:
+
+```bash
+git clone git@github.com:taillades/pi-skills.git ~/.pi/skills-repo
+rsync -avc --exclude '.git/' ~/.pi/skills-repo/ ~/.pi/agent/skills/
+```
+
 Personal skill definitions for the [Pi coding agent](https://pi.dev). Each directory in this repository is a Pi skill and contains a `SKILL.md` file with the trigger description, workflow, and tool constraints for that task.
 
 ## Skills
@@ -11,7 +46,7 @@ Personal skill definitions for the [Pi coding agent](https://pi.dev). Each direc
 | `fix-tests` | Read CI logs, identify failing tests, make straightforward fixes, validate, commit, and push when safe. |
 | `move-local-mods-to-pr-worktree` | Move selected local modifications into a fresh worktree, commit them, and create a PR. |
 | `pr` | Create or update a pull request. |
-| `rebase-main-into-branch` | Rebase the current branch onto latest `main` safely, asking before conflict resolution or force-push. |
+| `rebase-main-into-branch` | Rebase the current branch onto latest `main` safely, ask on edge cases/conflicts, validate, and force-push with lease when clean. |
 | `sync-pi-skills` | Bidirectionally sync local Pi skills with this GitHub-backed repository. |
 
 ## Layout
