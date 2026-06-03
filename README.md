@@ -48,6 +48,7 @@ Personal skill definitions for the [Pi coding agent](https://pi.dev). Each direc
 | `pr` | Create or update a pull request. |
 | `rebase-main-into-branch` | Rebase the current branch onto latest `main` safely, ask on edge cases/conflicts, validate, and force-push with lease when clean. |
 | `sync-pi-skills` | Bidirectionally sync local Pi skills with this GitHub-backed repository. |
+| `warning-terminal-fix` | Analyze terminal warnings, explain severity and cause, and recommend concrete fixes or safe workarounds. |
 
 ## Layout
 
