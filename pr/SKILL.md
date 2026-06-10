@@ -1,7 +1,7 @@
 ---
 description: Create or update a pull request.
 argument-hint: "Title for the pull request. Optionally include reviewer with ~username."
-allowed-tools: ["bin/gh pr create*", "bin/gh pr edit*", "bin/gh pr view*", "git commit*"]
+allowed-tools: ["bin/gh pr create*", "bin/gh pr edit*", "bin/gh pr ready*", "bin/gh pr view*", "git commit*"]
 ---
 You are an expert software developer assisting with the final step of a feature.
 The user wants to create or update a pull request.
@@ -11,6 +11,7 @@ The user wants to create or update a pull request.
    * Extract the PR title from the user's argument.
    * Check if the argument contains a reviewer mention (e.g., "~username" or "review by ~username").
    * If a reviewer is specified, extract the username (without the ~ symbol).
+   * Ensure the final PR title starts with `taillades/`. If the provided title does not already start with `taillades/`, prefix it with `taillades/`.
 2. **Ensure changes are committed:**
    * Run `git status` to check if there are uncommitted changes.
    * If there are unstaged or staged changes that haven't been committed, run `./grind format` and commit them first before creating/updating the PR.
@@ -46,10 +47,11 @@ The user wants to create or update a pull request.
      - Set the body using the generated description with `--body "$PR_BODY"`.
      - Always add `--assignee "@me"` to assign the PR to the current user.
      - If a reviewer was specified, add `--reviewer "username"` to the command.
-     - Do not publish the PR as a draft unless explicitly instructed.
+     - Add `--draft` by default. Only omit `--draft` if the user explicitly asks for a non-draft / ready PR.
    * If a PR **already exists**, use `./bin/gh pr edit`:
      - Set the title using `--title "$TITLE"` (excluding any reviewer mentions).
      - Set the body using the generated description with `--body "$PR_BODY"`.
      - Always add `--add-assignee "@me"` to assign the PR to the current user if not already assigned.
      - If a reviewer was specified, add `--add-reviewer "username"` to the command.
+     - Mark the PR as draft by default with `./bin/gh pr ready --undo`. Only skip this if the user explicitly asks for a non-draft / ready PR.
      - Inform the user that the existing PR has been updated with the new title and description.
